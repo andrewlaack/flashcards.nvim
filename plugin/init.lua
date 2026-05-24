@@ -1,3 +1,11 @@
+local function shuffle(t)
+    for i = #t, 2, -1 do
+        local j = math.random(i)
+        t[i], t[j] = t[j], t[i]
+    end
+    return t
+end
+
 local function flash()
 
     local currentWin = vim.api.nvim_get_current_win()
@@ -5,6 +13,8 @@ local function flash()
     local cwd = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
 
     local files = vim.split(vim.fn.glob(cwd .. "/*.md"), "\n")
+
+    files = shuffle(files)
 
     local buf = vim.api.nvim_create_buf(false, true)
 
