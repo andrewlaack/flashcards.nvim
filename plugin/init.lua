@@ -1,9 +1,12 @@
-function flash()
-    local cwd = vim.fn.getcwd()
+local function flash()
+
+    local currentWin = vim.api.nvim_get_current_win()
+
+    local cwd = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
+
     local files = vim.split(vim.fn.glob(cwd .. "/*.md"), "\n")
 
     local buf = vim.api.nvim_create_buf(false, true)
-    local currentWin = vim.api.nvim_get_current_win()
 
     local row = 0
     local col = 0
