@@ -101,15 +101,31 @@ local function flash()
 
     -- if this was already opened close and reopen because that's easier than figuring out if the window
     -- or buffer is rendered right now.
-    if state.win ~= nil then
-        vim.api.nvim_win_close(state.win, true)
-    end
+
+    local begin_buf = state.buf ~= nil
+
     if state.buf ~= nil then
         vim.api.nvim_buf_delete(state.buf, { force = true })
+        state.buf = nil
+    end
+
+    if begin_buf then
+        return
     end
 
     state.win = vim.api.nvim_get_current_win()
     state.buf = vim.api.nvim_create_buf(false, true)
+
+    
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Left>", ":PreviousCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Right>", ":NextCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Up>", ":Flip<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Down>", ":Flip<CR>", {})
+
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "h", ":PreviousCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "l", ":NextCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "k", ":Flip<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "j", ":Flip<CR>", {})
 
     local row = 0
     local col = 0
@@ -139,7 +155,6 @@ vim.api.nvim_create_user_command('Flash', flash, {})
 vim.api.nvim_create_user_command('Flip', flip_card, {})
 vim.api.nvim_create_user_command('NextCard', next_card, {}) -- defaults first side
 vim.api.nvim_create_user_command('PreviousCard', previous_card, {}) -- defaults first side
-
 
 -- TODO: Perhaps refactor 'Flash'
 -- TODO: Make commands more sensibly named
