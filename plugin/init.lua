@@ -1,3 +1,11 @@
+local state = {
+    buf = nil,
+    win = nil,
+    cards = {},
+    index = 1,
+    showing_back = false,
+}
+
 local function shuffle(t)
     for i = #t, 2, -1 do
         local j = math.random(i)
@@ -6,23 +14,108 @@ local function shuffle(t)
     return t
 end
 
-local function flash()
+local function formatCard(strArr)
 
-    local currentWin = vim.api.nvim_get_current_win()
+    local result = {}
+    local firstNonBlank = false
 
+    for i = 2, #strArr do
+        if strArr[i] == "" and firstNonBlank == false then
+            goto continue
+        end
+
+        firstNonBlank = true
+        table.insert(result, strArr[i])
+
+        ::continue::
+    end
+
+    return result
+end
+
+local function formatH1(str)
+    if not str then
+        return ""
+    end
+
+    if #str >= 3 then
+        return str:sub(3)
+    end
+
+    return ""
+end
+
+local function load_cards()
     local cwd = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
-
     local files = vim.split(vim.fn.glob(cwd .. "/*.md"), "\n")
-
     files = shuffle(files)
 
-    local buf = vim.api.nvim_create_buf(false, true)
+    for index, _ in ipairs(files) do
+        local file = vim.fn.readfile(files[index])
+        -- add card to state
+        table.insert(state.cards, {
+            formatH1(file[1]), formatCard(file)
+        })
+    end
+end
+
+local function render()
+    vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, {})
+    if state.showing_back then
+        vim.api.nvim_buf_set_lines(state.buf, 0, 10, false, state.cards[state.index][2])
+    else
+        vim.api.nvim_buf_set_lines(state.buf, 0, 10, false, {state.cards[state.index][1]})
+    end
+end
+
+
+local function previous_card()
+    state.index = state.index - 1
+    state.showing_back = false
+
+    if state.index < 1 then
+        state.index = #state.cards
+    end
+
+    render()
+end
+
+local function next_card()
+    state.index = state.index + 1
+    state.showing_back = false
+
+    if state.index > #state.cards then
+        state.index = 1
+    end
+
+    render()
+end
+
+local function flip_card()
+    state.showing_back = not state.showing_back
+    render()
+end
+
+local function flash()
+    load_cards()
+
+    -- if this was already opened close and reopen because that's easier than figuring out if the window
+    -- or buffer is rendered right now.
+    if state.win ~= nil then
+        vim.api.nvim_win_close(state.win, true)
+    end
+    if state.buf ~= nil then
+        vim.api.nvim_buf_delete(state.buf, { force = true })
+    end
+
+    state.win = vim.api.nvim_get_current_win()
+    state.buf = vim.api.nvim_create_buf(false, true)
 
     local row = 0
     local col = 0
 
-    local width = vim.fn.winwidth(currentWin)
-    local height = vim.fn.winheight(currentWin)
+    local width = vim.fn.winwidth(state.win)
+    local height = vim.fn.winheight(state.win)
 
     local opts = {
       width = width,
@@ -35,12 +128,23 @@ local function flash()
       title_pos = "center"
     }
 
-    local _ = vim.api.nvim_open_win(buf, true, opts)
+    local _ = vim.api.nvim_open_win(state.buf, true, opts)
 
-    local file = vim.fn.readfile(files[1])
-    vim.api.nvim_buf_set_lines(buf, 0, 10, false, file)
+    render()
 
 
 end
 
 vim.api.nvim_create_user_command('Flash', flash, {})
+vim.api.nvim_create_user_command('Flip', flip_card, {})
+vim.api.nvim_create_user_command('NextCard', next_card, {}) -- defaults first side
+vim.api.nvim_create_user_command('PreviousCard', previous_card, {}) -- defaults first side
+
+
+-- TODO: Perhaps refactor 'Flash'
+-- TODO: Make commands more sensibly named
+    -- how does vimwiki do it? Namespacing perhaps?
+-- TODO: Smarter selection
+    -- would be cool to have a state directory that upweights based on some sort of recency / failure stuff
+    -- would be cool to have better tagging; tag cards based on categories of things or something like that?
+        -- perhaps you are expected to just put stuff in a directory for this?
