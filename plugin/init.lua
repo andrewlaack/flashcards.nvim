@@ -166,3 +166,5 @@ vim.api.nvim_create_user_command('PreviousCard', previous_card, {}) -- defaults 
     -- would be cool to have better tagging; tag cards based on categories of things or something like that?
         -- perhaps you are expected to just put stuff in a directory for this?
 -- TODO: Pass in keybindings as opts
+-- TODO: Should I block the modification of flashcards or should I allow it with the ability to write the results
+    -- back to the file?
