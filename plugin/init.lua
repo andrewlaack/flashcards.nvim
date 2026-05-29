@@ -1,3 +1,4 @@
+
 local state = {
     buf = nil,
     win = nil,
@@ -60,12 +61,14 @@ local function load_cards()
 end
 
 local function render()
+    vim.bo[state.buf].modifiable = true
     vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, {})
     if state.showing_back then
         vim.api.nvim_buf_set_lines(state.buf, 0, 10, false, state.cards[state.index][2])
     else
         vim.api.nvim_buf_set_lines(state.buf, 0, 10, false, {state.cards[state.index][1]})
     end
+    vim.bo[state.buf].modifiable = false
 end
 
 
@@ -115,7 +118,6 @@ local function flash()
 
     state.win = vim.api.nvim_get_current_win()
     state.buf = vim.api.nvim_create_buf(false, true)
-
     
     vim.api.nvim_buf_set_keymap(state.buf, "n", "<Left>", ":PreviousCard<CR>", {})
     vim.api.nvim_buf_set_keymap(state.buf, "n", "<Right>", ":NextCard<CR>", {})
