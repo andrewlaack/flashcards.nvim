@@ -47,6 +47,12 @@ local function formatH1(str)
 end
 
 local function load_cards()
+
+    -- clear state
+    state.cards = {}
+    state.index = 1
+    state.showing_back = false
+
     local cwd = vim.fs.dirname(vim.api.nvim_buf_get_name(0))
     local files = vim.split(vim.fn.glob(cwd .. "/*.md"), "\n")
     files = shuffle(files)
@@ -100,20 +106,19 @@ local function flip_card()
 end
 
 local function flash()
+
+    -- this also clears the card state.
     load_cards()
 
     -- if this was already opened close and reopen because that's easier than figuring out if the window
     -- or buffer is rendered right now.
 
-    local begin_buf = state.buf ~= nil
 
     if state.buf ~= nil then
         vim.api.nvim_buf_delete(state.buf, { force = true })
         state.buf = nil
-    end
-
-    if begin_buf then
-        return
+        state.win = nil -- do windows have to be closed? presumably not, I think the window abstraction is simply a view into a buffer
+                        -- which would then be closed by this point thus requiring no cleanup.
     end
 
     state.win = vim.api.nvim_get_current_win()
