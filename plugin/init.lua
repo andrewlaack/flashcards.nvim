@@ -1,4 +1,3 @@
-
 local state = {
     buf = nil,
     win = nil,
@@ -162,14 +161,3 @@ vim.api.nvim_create_user_command('Flash', flash, {})
 vim.api.nvim_create_user_command('Flip', flip_card, {})
 vim.api.nvim_create_user_command('NextCard', next_card, {}) -- defaults first side
 vim.api.nvim_create_user_command('PreviousCard', previous_card, {}) -- defaults first side
-
--- TODO: Perhaps refactor 'Flash'
--- TODO: Make commands more sensibly named
-    -- how does vimwiki do it? Namespacing perhaps?
--- TODO: Smarter selection
-    -- would be cool to have a state directory that upweights based on some sort of recency / failure stuff
-    -- would be cool to have better tagging; tag cards based on categories of things or something like that?
-        -- perhaps you are expected to just put stuff in a directory for this?
--- TODO: Pass in keybindings as opts
--- TODO: Should I block the modification of flashcards or should I allow it with the ability to write the results
-    -- back to the file?
