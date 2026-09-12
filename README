@@ -7,7 +7,7 @@ With packer:
 
     use {
         'git://git.laack.co/flashcards.nvim', 
-        commit = "fe13b8d8381607155a74d002513e13f469c87910"
+        commit = "5979f57fc0650df0a280c5cbe1cdea968080bd64"
     }
 
 Keybindings
