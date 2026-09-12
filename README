@@ -10,18 +10,19 @@ With packer:
         commit = "fe13b8d8381607155a74d002513e13f469c87910"
     }
 
-Commands
-========
-Put in your config file:
+Keybindings
+===========
+Put the following in your config file:
 
     -- default: N/A
-    vim.api.nvim_set_keymap('n', '<leader>f', ':Flash<CR>', {})
-    -- default: right arrow
-    -- vim.api.nvim_set_keymap('n', '<leader>fn', ':NextCard<CR>', {})
-    -- default: left arrow
-    -- vim.api.nvim_set_keymap('n', '<leader>fp', ':PreviousCard<CR>', {})
-    -- default: up / down arrow
-    -- vim.api.nvim_set_keymap('n', '<leader>ff', ':Flip<CR>', {})
+    vim.api.nvim_set_keymap('n', '<leader>f', '<Cmd>Flash<CR>', {})
+    -- default: right arrow, l
+    -- vim.api.nvim_set_keymap('n', '<leader>fn', '<Cmd>NextCard<CR>', {})
+    -- default: left arrow, h
+    -- vim.api.nvim_set_keymap('n', '<leader>fp', '<Cmd>PreviousCard<CR>', {})
+    -- default: up / down arrow, j / k
+    -- vim.api.nvim_set_keymap('n', '<leader>ff', '<Cmd>Flip<CR>', {})
+
 
 Usage
 =====

@@ -57,15 +57,23 @@ local function load_cards()
     files = shuffle(files)
 
     for index, _ in ipairs(files) do
-        local file = vim.fn.readfile(files[index])
-        -- add card to state
-        table.insert(state.cards, {
-            formatH1(file[1]), formatCard(file)
-        })
+        if files[index] ~= "" then
+            local file = vim.fn.readfile(files[index])
+            -- add card to state
+            table.insert(state.cards, {
+                formatH1(file[1]), formatCard(file)
+            })
+        end
     end
 end
 
 local function render()
+
+    if state.cards[state.index] == nil then
+        print("Unable to find card.")
+        return
+    end
+
     vim.bo[state.buf].modifiable = true
     vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, {})
     if state.showing_back then
@@ -106,32 +114,31 @@ end
 
 local function flash()
 
-    -- this also clears the card state.
     load_cards()
 
-    -- if this was already opened close and reopen because that's easier than figuring out if the window
-    -- or buffer is rendered right now.
-
+    if state.cards[1] == nil then
+        print("No cards found in the cwd.")
+        return
+    end
 
     if state.buf ~= nil then
         vim.api.nvim_buf_delete(state.buf, { force = true })
         state.buf = nil
-        state.win = nil -- do windows have to be closed? presumably not, I think the window abstraction is simply a view into a buffer
-                        -- which would then be closed by this point thus requiring no cleanup.
+        state.win = nil
     end
 
     state.win = vim.api.nvim_get_current_win()
     state.buf = vim.api.nvim_create_buf(false, true)
-    
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Left>", ":PreviousCard<CR>", {})
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Right>", ":NextCard<CR>", {})
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Up>", ":Flip<CR>", {})
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Down>", ":Flip<CR>", {})
 
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "h", ":PreviousCard<CR>", {})
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "l", ":NextCard<CR>", {})
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "k", ":Flip<CR>", {})
-    vim.api.nvim_buf_set_keymap(state.buf, "n", "j", ":Flip<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Left>", "<Cmd>PreviousCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Right>", "<Cmd>NextCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Up>", "<Cmd>Flip<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "<Down>", "<Cmd>Flip<CR>", {})
+
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "h", "<Cmd>PreviousCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "l", "<Cmd>NextCard<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "k", "<Cmd>Flip<CR>", {})
+    vim.api.nvim_buf_set_keymap(state.buf, "n", "j", "<Cmd>Flip<CR>", {})
 
     local row = 0
     local col = 0
